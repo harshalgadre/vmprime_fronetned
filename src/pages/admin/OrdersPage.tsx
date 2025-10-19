@@ -114,7 +114,7 @@ const OrdersPage = () => {
       const data = await getOrders();
       setOrders(data);
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch orders:", error);
       setError(error.message);
       setLoading(false);
@@ -126,7 +126,7 @@ const OrdersPage = () => {
       await updateOrderStatus(orderId, status);
       // Refresh the orders list
       fetchOrders();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update order status:", error);
       alert("Failed to update order status: " + error.message);
     }
@@ -138,7 +138,7 @@ const OrdersPage = () => {
       // We need to make a direct fetch call here since this is a special endpoint
       // In production, we'll use relative path; in development, we'll use the full URL
       const baseUrl = import.meta.env.DEV 
-        ? 'https://vmptime-backend.onrender.com//api' 
+        ? 'https://vmptime-backend.onrender.com/api' 
         : '/api';
       
       const response = await fetch(`${baseUrl}/orders/${orderId}`, {
@@ -166,7 +166,7 @@ const OrdersPage = () => {
       
       // Show success message
       alert("Payment verified successfully!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to verify payment:", error);
       alert("Failed to verify payment: " + error.message);
     }
@@ -567,7 +567,9 @@ const OrdersPage = () => {
                                         </Button>
                                       )}
                                       
-                                      {selectedOrder.paymentStatus === 'verified' && (
+                                      {/* Show Send Payment Confirmation for verified payments or full payments */}
+                                      {(selectedOrder.paymentStatus === 'verified' || 
+                                        selectedOrder.paymentOption === 'full') && (
                                         <Button 
                                           onClick={() => sendPaymentConfirmation(selectedOrder)}
                                           variant="outline"
