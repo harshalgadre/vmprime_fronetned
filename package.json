@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "build:prod": "tsc && vite build --mode production",
     "build:verify": "npm run build && node scripts/verify-build.js",
+    "clean": "scripts/cleanup.bat",
     "lint": "eslint .",
     "preview": "vite preview",
     "vercel-build": "npm install && npm run build",

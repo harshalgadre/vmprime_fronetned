@@ -9,3 +9,14 @@ services:
         value: https://vmptime-backend.onrender.com/api
       - key: NODE_VERSION
         value: 18
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+    routes:
+      - type: rewrite
+        source: /api/(.*)
+        destination: https://vmptime-backend.onrender.com/api/$1
+      - type: rewrite
+        source: /*
+        destination: /index.html
