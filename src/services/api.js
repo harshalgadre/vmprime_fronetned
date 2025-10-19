@@ -2,7 +2,7 @@
 
 // For production, we use relative paths since frontend and backend are served from the same origin
 // For development, we use the full URL to the backend
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Admin authentication header (in a real app, this would come from a login)
 const ADMIN_AUTH_HEADER = {

@@ -17,7 +17,6 @@ import OrderTrackingPage from "./pages/OrderTrackingPage"; // Import OrderTracki
 import Dashboard from "./pages/admin/Dashboard";
 import ProductsPage from "./pages/admin/ProductsPage";
 import OrdersPage from "./pages/admin/OrdersPage";
-import TestAPIPage from "./pages/TestAPIPage";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +38,6 @@ function App() {
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/orders/:orderId?" element={<OrderTrackingPage />} />
-              <Route path="/test-api" element={<TestAPIPage />} />
               
               {/* Protected Admin Routes */}
               <Route path="/admin" element={<Dashboard />}>
