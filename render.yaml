@@ -1,0 +1,6 @@
+# Render configuration for static site deployment
+services:
+  - type: static
+    name: vm-prime-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
