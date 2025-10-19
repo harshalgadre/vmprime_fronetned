@@ -1,0 +1,5 @@
+# Netlify redirects for SPA client-side routing
+/*    /index.html   200
+
+# API proxying to backend
+/api/*  https://vmptime-backend.onrender.com/api/:splat  200
