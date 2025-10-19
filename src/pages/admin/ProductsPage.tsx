@@ -208,7 +208,7 @@ const ProductsPage = () => {
       // We need to make a direct fetch call here since this is a special endpoint
       // In production, we'll use relative path; in development, we'll use the full URL
       const baseUrl = import.meta.env.DEV 
-        ? 'https://localhost:5000/api' 
+        ? 'https://vmptime-backend.onrender.com/api' 
         : '/api';
       
       const response = await fetch(`${baseUrl}/products/${selectedProduct?._id}/color-images`, {
@@ -290,7 +290,7 @@ const ProductsPage = () => {
         if (uploadedImage) {
           // For file uploads, we need to make a direct call
           const baseUrl = import.meta.env.DEV 
-            ? 'https://localhost:5000/api' 
+            ? 'https://vmptime-backend.onrender.com/api' 
             : '/api';
           
           // Create FormData for file upload
@@ -332,7 +332,7 @@ const ProductsPage = () => {
         if (uploadedImage) {
           // For file uploads, we need to make a direct call
           const baseUrl = import.meta.env.DEV 
-            ? 'https://localhost:5000/api' 
+            ? 'https://vmptime-backend.onrender.com/api' 
             : '/api';
           
           // Create FormData for file upload
@@ -409,7 +409,7 @@ const ProductsPage = () => {
       // We need to make a direct fetch call here since this is a special endpoint
       // In production, we'll use relative path; in development, we'll use the full URL
       const baseUrl = import.meta.env.DEV 
-        ? 'https://localhost:5000/api' 
+        ? 'https://vmptime-backend.onrender.com/api' 
         : '/api';
       
       const response = await fetch(`${baseUrl}/products/${productId}/color-images`, {

@@ -138,7 +138,7 @@ const OrdersPage = () => {
       // We need to make a direct fetch call here since this is a special endpoint
       // In production, we'll use relative path; in development, we'll use the full URL
       const baseUrl = import.meta.env.DEV 
-        ? 'https://localhost:5000/api' 
+        ? 'https://vmptime-backend.onrender.com//api' 
         : '/api';
       
       const response = await fetch(`${baseUrl}/orders/${orderId}`, {

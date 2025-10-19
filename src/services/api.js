@@ -9,15 +9,47 @@ const ADMIN_AUTH_HEADER = {
   'x-admin-auth': 'admin-secret-key'
 };
 
+// Helper function to handle API responses
+const handleResponse = async (response) => {
+  // Check if the response is OK
+  if (!response.ok) {
+    // Try to parse the error response
+    let errorMessage = `HTTP error! status: ${response.status}`;
+    try {
+      const errorData = await response.text();
+      // If it's HTML (like a 404 page), don't include it in the error
+      if (!errorData.startsWith('<!DOCTYPE html>')) {
+        errorMessage = errorData || errorMessage;
+      }
+    } catch (e) {
+      // If parsing fails, use the default error message
+    }
+    throw new Error(errorMessage);
+  }
+  
+  // For DELETE requests that might not return JSON
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return response.json();
+  } else {
+    // Return text or empty object for non-JSON responses
+    try {
+      return await response.text();
+    } catch {
+      return {};
+    }
+  }
+};
+
 // Product API calls
 export const getProducts = async () => {
   const response = await fetch(`${API_BASE_URL}/products`);
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getProductById = async (id) => {
   const response = await fetch(`${API_BASE_URL}/products/${id}`);
-  return response.json();
+  return handleResponse(response);
 };
 
 export const createProduct = async (productData) => {
@@ -29,7 +61,7 @@ export const createProduct = async (productData) => {
     },
     body: JSON.stringify(productData)
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const updateProduct = async (id, productData) => {
@@ -41,7 +73,7 @@ export const updateProduct = async (id, productData) => {
     },
     body: JSON.stringify(productData)
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const deleteProduct = async (id) => {
@@ -49,7 +81,7 @@ export const deleteProduct = async (id) => {
     method: 'DELETE',
     headers: ADMIN_AUTH_HEADER
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 // Order API calls
@@ -57,14 +89,14 @@ export const getOrders = async () => {
   const response = await fetch(`${API_BASE_URL}/orders`, {
     headers: ADMIN_AUTH_HEADER
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getOrderById = async (id) => {
   const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
     headers: ADMIN_AUTH_HEADER
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const createOrder = async (orderData) => {
@@ -75,7 +107,7 @@ export const createOrder = async (orderData) => {
     },
     body: JSON.stringify(orderData)
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const updateOrderStatus = async (id, status) => {
@@ -87,7 +119,7 @@ export const updateOrderStatus = async (id, status) => {
     },
     body: JSON.stringify({ status })
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 // Contact API calls
@@ -99,12 +131,12 @@ export const submitContactForm = async (contactData) => {
     },
     body: JSON.stringify(contactData)
   });
-  return response.json();
+  return handleResponse(response);
 };
 
 export const getContacts = async () => {
   const response = await fetch(`${API_BASE_URL}/contact`, {
     headers: ADMIN_AUTH_HEADER
   });
-  return response.json();
+  return handleResponse(response);
 };

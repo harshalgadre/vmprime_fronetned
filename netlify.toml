@@ -24,3 +24,7 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
+
+# Environment variables
+[template.environment]
+  VITE_API_URL = "Backend API URL (e.g., https://vmptime-backend.onrender.com/api)"
