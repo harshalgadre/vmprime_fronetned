@@ -62,7 +62,7 @@ const ProductsPage = () => {
       const data = await getProducts();
       setProducts(data);
       setLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch products:", error);
       setError(error.message);
       setLoading(false);
@@ -91,7 +91,7 @@ const ProductsPage = () => {
       await deleteProduct(id);
       // Refresh the product list
       fetchProducts();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete product:", error);
       alert("Failed to delete product: " + error.message);
     }
@@ -205,11 +205,9 @@ const ProductsPage = () => {
       });
       formData.append('colorIndex', colorIndex.toString());
       
-      // We need to make a direct fetch call here since this is a special endpoint
-      // In production, we'll use relative path; in development, we'll use the full URL
-      const baseUrl = import.meta.env.DEV 
-        ? 'https://vmptime-backend.onrender.com/api' 
-        : '/api';
+      // Use the API service base URL
+      const baseUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD ? 'https://vmptime-backend.onrender.com/api' : '/api');
       
       const response = await fetch(`${baseUrl}/products/${selectedProduct?._id}/color-images`, {
         method: 'POST',
@@ -233,7 +231,7 @@ const ProductsPage = () => {
       }));
       
       setColors(updatedColors);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading color images:', error);
       alert('Failed to upload color images: ' + error.message);
     }
@@ -288,10 +286,9 @@ const ProductsPage = () => {
       if (selectedProduct && selectedProduct._id) {
         // Update existing product
         if (uploadedImage) {
-          // For file uploads, we need to make a direct call
-          const baseUrl = import.meta.env.DEV 
-            ? 'https://vmptime-backend.onrender.com/api' 
-            : '/api';
+          // Use the API service base URL
+          const baseUrl = import.meta.env.VITE_API_URL || 
+            (import.meta.env.PROD ? 'https://vmptime-backend.onrender.com/api' : '/api');
           
           // Create FormData for file upload
           const uploadFormData = new FormData();
@@ -330,10 +327,9 @@ const ProductsPage = () => {
       } else {
         // Create new product
         if (uploadedImage) {
-          // For file uploads, we need to make a direct call
-          const baseUrl = import.meta.env.DEV 
-            ? 'https://vmptime-backend.onrender.com/api' 
-            : '/api';
+          // Use the API service base URL
+          const baseUrl = import.meta.env.VITE_API_URL || 
+            (import.meta.env.PROD ? 'https://vmptime-backend.onrender.com/api' : '/api');
           
           // Create FormData for file upload
           const uploadFormData = new FormData();
@@ -389,7 +385,7 @@ const ProductsPage = () => {
       setUploadedImage(null);
       setColorImages({}); // Clear temporary color images
       fetchProducts(); // Refresh the list
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save product:", error);
       alert("Failed to save product: " + error.message);
     } finally {
@@ -406,11 +402,9 @@ const ProductsPage = () => {
       });
       formData.append('colorIndex', colorIndex.toString());
       
-      // We need to make a direct fetch call here since this is a special endpoint
-      // In production, we'll use relative path; in development, we'll use the full URL
-      const baseUrl = import.meta.env.DEV 
-        ? 'https://vmptime-backend.onrender.com/api' 
-        : '/api';
+      // Use the API service base URL
+      const baseUrl = import.meta.env.VITE_API_URL || 
+        (import.meta.env.PROD ? 'https://vmptime-backend.onrender.com/api' : '/api');
       
       const response = await fetch(`${baseUrl}/products/${productId}/color-images`, {
         method: 'POST',
