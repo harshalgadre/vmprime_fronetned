@@ -172,35 +172,52 @@ const OrdersPage = () => {
     }
   };
 
-  // Function to send payment request message to customer (for COD orders)
+  // Function to send payment request message to customer (for both COD and Full Payment orders)
   const sendPaymentRequest = (order: Order) => {
     try {
-      // Only for COD orders
-      if (order.paymentOption !== 'cod') {
-        alert("This option is only available for COD orders.");
-        return;
-      }
-      
-      const remainingAmount = order.total - initialPayment;
       const upiId = "yourbusiness@upi"; // Your UPI ID
       
-      const message = `*Order Payment Request*\n\n` +
-        `Order ID: #${order._id.substring(0, 8)}\n` +
-        `Customer: ${order.customerName}\n\n` +
-        `*Order Details:*\n` +
-        order.items.map(item => 
-          `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
-        ).join('\n') +
-        `\n\n*Payment Details:*\n` +
-        `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n` +
-        `Initial Payment: ₹${initialPayment.toLocaleString('en-IN')}\n` +
-        `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}\n\n` +
-        `*UPI Payment Details:*\n` +
-        `UPI ID: ${upiId}\n` +
-        `Payment Link: upi://pay?pa=${upiId}&pn=NTRO.IO Store&am=${initialPayment}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Initial Payment\n\n` +
-        `Please complete the initial payment of ₹${initialPayment} using the UPI link above.\n` +
-        `After payment, please notify us with your transaction ID.\n\n` +
-        `Thank you for your order!`;
+      let message = '';
+      
+      if (order.paymentOption === 'cod') {
+        // For COD orders
+        const remainingAmount = order.total - initialPayment;
+        
+        message = `*Order Payment Request*\n\n` +
+          `Order ID: #${order._id.substring(0, 8)}\n` +
+          `Customer: ${order.customerName}\n\n` +
+          `*Order Details:*\n` +
+          order.items.map(item => 
+            `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
+          ).join('\n') +
+          `\n\n*Payment Details:*\n` +
+          `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n` +
+          `Initial Payment: ₹${initialPayment.toLocaleString('en-IN')}\n` +
+          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}\n\n` +
+          `*UPI Payment Details:*\n` +
+          `UPI ID: ${upiId}\n` +
+          `Payment Link: upi://pay?pa=${upiId}&pn=NTRO.IO Store&am=${initialPayment}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Initial Payment\n\n` +
+          `Please complete the initial payment of ₹${initialPayment} using the UPI link above.\n` +
+          `After payment, please notify us with your transaction ID.\n\n` +
+          `Thank you for your order!`;
+      } else {
+        // For Full Payment orders
+        message = `*Full Payment Request*\n\n` +
+          `Order ID: #${order._id.substring(0, 8)}\n` +
+          `Customer: ${order.customerName}\n\n` +
+          `*Order Details:*\n` +
+          order.items.map(item => 
+            `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
+          ).join('\n') +
+          `\n\n*Payment Details:*\n` +
+          `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n\n` +
+          `*UPI Payment Details:*\n` +
+          `UPI ID: ${upiId}\n` +
+          `Payment Link: upi://pay?pa=${upiId}&pn=NTRO.IO Store&am=${order.total}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Full Payment\n\n` +
+          `Please complete the full payment of ₹${order.total.toLocaleString('en-IN')} using the UPI link above.\n` +
+          `After payment, please notify us with your transaction ID.\n\n` +
+          `Thank you for your order!`;
+      }
       
       // Send to customer's WhatsApp
       const cleanPhoneNumber = order.customerPhone.replace(/\D/g, '');
@@ -557,7 +574,7 @@ const OrdersPage = () => {
                                     <p className="mb-3">Send messages to the customer about their order.</p>
                                     
                                     <div className="flex flex-wrap gap-2">
-                                      {selectedOrder.paymentOption === 'cod' && selectedOrder.paymentStatus !== 'verified' && (
+                                      {selectedOrder.paymentStatus !== 'verified' && (
                                         <Button 
                                           onClick={() => sendPaymentRequest(selectedOrder)}
                                           variant="outline"
@@ -590,14 +607,18 @@ const OrdersPage = () => {
                                 </Alert>
                               </div>
                               
-                              {/* Payment Verification Section (only for COD orders) */}
-                              {selectedOrder.paymentOption === 'cod' && selectedOrder.paymentStatus !== 'verified' && (
+                              {/* Payment Verification Section (for both COD and Full Payment orders) */}
+                              {selectedOrder.paymentStatus !== 'verified' && (
                                 <div className="md:col-span-2">
                                   <Alert className="bg-yellow-50 border-yellow-200">
                                     <CreditCard className="h-4 w-4 text-yellow-600" />
                                     <AlertDescription className="text-yellow-800">
                                       <h3 className="font-semibold mb-2">Verify Payment</h3>
-                                      <p className="mb-3">Please verify the initial payment of ₹200 before processing the order.</p>
+                                      <p className="mb-3">
+                                        {selectedOrder.paymentOption === 'cod' 
+                                          ? 'Please verify the initial payment of ₹200 before processing the order.'
+                                          : `Please verify the full payment of ₹${selectedOrder.total?.toLocaleString('en-IN')} before processing the order.`}
+                                      </p>
                                       
                                       <div className="space-y-3">
                                         <div>
