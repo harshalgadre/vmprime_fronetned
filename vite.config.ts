@@ -39,4 +39,6 @@ export default defineConfig({
       },
     }
   },
+  // Handle SPA routing
+  appType: 'spa'
 });
