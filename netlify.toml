@@ -28,3 +28,6 @@
 # Environment variables
 [template.environment]
   VITE_API_URL = "Backend API URL (e.g., https://vmptime-backend.onrender.com/api)"
+
+[context.production.environment]
+  VITE_API_URL = "https://vmptime-backend.onrender.com/api"

@@ -1,8 +1,11 @@
 // API service for frontend-backend communication
 
-// For production, we use relative paths since frontend and backend are served from the same origin
-// For development, we use the full URL to the backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// API base URL configuration
+// In development: VITE_API_URL should be set to http://localhost:5000/api
+// In production: VITE_API_URL should be set to https://vmptime-backend.onrender.com/api
+// Fallback: /api (for proxy setups)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? 'https://vmptime-backend.onrender.com/api' : '/api');
 
 // Admin authentication header (in a real app, this would come from a login)
 const ADMIN_AUTH_HEADER = {
