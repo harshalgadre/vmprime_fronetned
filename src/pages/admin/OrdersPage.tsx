@@ -567,9 +567,8 @@ const OrdersPage = () => {
                                         </Button>
                                       )}
                                       
-                                      {/* Show Send Payment Confirmation for verified payments or full payments */}
-                                      {(selectedOrder.paymentStatus === 'verified' || 
-                                        selectedOrder.paymentOption === 'full') && (
+                                      {/* Show Send Payment Confirmation only for verified payments */}
+                                      {selectedOrder.paymentStatus === 'verified' && (
                                         <Button 
                                           onClick={() => sendPaymentConfirmation(selectedOrder)}
                                           variant="outline"
