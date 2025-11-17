@@ -15,6 +15,8 @@ export interface Product {
   }>;
   features?: string[];
   image: string;
+  rating?: number;
+  reviews?: number;
   createdAt: string;
   updatedAt: string;
 }
