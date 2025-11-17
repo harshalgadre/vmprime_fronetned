@@ -32,7 +32,7 @@ const Dashboard = () => {
     e.preventDefault();
     
     // Simple password check (in a real app, this would be server-side)
-    if (password === "admin123") { // You can change this password
+    if (password === "Kamlesh911") { // You can change this password
       setIsAuthenticated(true);
       setShowAuthDialog(false);
       localStorage.setItem("adminAuthenticated", "true");
