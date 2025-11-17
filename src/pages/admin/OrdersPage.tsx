@@ -175,7 +175,7 @@ const OrdersPage = () => {
   // Function to send payment request message to customer (for both COD and Full Payment orders)
   const sendPaymentRequest = (order: Order) => {
     try {
-      const upiId = "yourbusiness@upi"; // Your UPI ID
+      const upiId = "7357762652@ybl"; // Your UPI ID
       
       let message = '';
       
