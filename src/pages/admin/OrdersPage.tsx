@@ -183,39 +183,77 @@ const OrdersPage = () => {
         // For COD orders
         const remainingAmount = order.total - initialPayment;
         
-        message = `*Order Payment Request*\n\n` +
-          `Order ID: #${order._id.substring(0, 8)}\n` +
-          `Customer: ${order.customerName}\n\n` +
-          `*Order Details:*\n` +
+        message = `*Order Payment Request*
+
+` +
+          `Order ID: #${order._id.substring(0, 8)}
+` +
+          `Customer: ${order.customerName}
+
+` +
+          `*Order Details:*
+` +
           order.items.map(item => 
             `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
           ).join('\n') +
-          `\n\n*Payment Details:*\n` +
-          `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n` +
-          `Initial Payment: ₹${initialPayment.toLocaleString('en-IN')}\n` +
-          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}\n\n` +
-          `*UPI Payment Details:*\n` +
-          `UPI ID: ${upiId}\n` +
-          `Payment Link: upi://pay?pa=${upiId}&pn=NTRO.IO Store&am=${initialPayment}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Initial Payment\n\n` +
-          `Please complete the initial payment of ₹${initialPayment} using the UPI link above.\n` +
-          `After payment, please notify us with your transaction ID.\n\n` +
+          `
+
+*Payment Details:*
+` +
+          `Total Amount: ₹${order.total.toLocaleString('en-IN')}
+` +
+          `Initial Payment: ₹${initialPayment.toLocaleString('en-IN')}
+` +
+          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}
+
+` +
+          `*UPI Payment Details:*
+` +
+          `UPI ID: ${upiId}
+` +
+          `UPI QR Code: https://vmptime-backend.onrender.com/api/qr-code?upi=${upiId}&amount=${initialPayment}&note=Order ${order._id.substring(0, 8)} - Initial Payment
+
+` +
+          `Please scan the QR code above to complete the initial payment of ₹${initialPayment}.
+` +
+          `After payment, please notify us with your transaction ID.
+
+` +
           `Thank you for your order!`;
       } else {
         // For Full Payment orders
-        message = `*Full Payment Request*\n\n` +
-          `Order ID: #${order._id.substring(0, 8)}\n` +
-          `Customer: ${order.customerName}\n\n` +
-          `*Order Details:*\n` +
+        message = `*Full Payment Request*
+
+` +
+          `Order ID: #${order._id.substring(0, 8)}
+` +
+          `Customer: ${order.customerName}
+
+` +
+          `*Order Details:*
+` +
           order.items.map(item => 
             `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
           ).join('\n') +
-          `\n\n*Payment Details:*\n` +
-          `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n\n` +
-          `*UPI Payment Details:*\n` +
-          `UPI ID: ${upiId}\n` +
-          `Payment Link: upi://pay?pa=${upiId}&pn=NTRO.IO Store&am=${order.total}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Full Payment\n\n` +
-          `Please complete the full payment of ₹${order.total.toLocaleString('en-IN')} using the UPI link above.\n` +
-          `After payment, please notify us with your transaction ID.\n\n` +
+          `
+
+*Payment Details:*
+` +
+          `Total Amount: ₹${order.total.toLocaleString('en-IN')}
+
+` +
+          `*UPI Payment Details:*
+` +
+          `UPI ID: ${upiId}
+` +
+          `UPI QR Code: https://vmptime-backend.onrender.com/api/qr-code?upi=${upiId}&amount=${order.total}&note=Order ${order._id.substring(0, 8)} - Full Payment
+
+` +
+          `Please scan the QR code above to complete the full payment of ₹${order.total.toLocaleString('en-IN')}.
+` +
+          `After payment, please notify us with your transaction ID.
+
+` +
           `Thank you for your order!`;
       }
       
@@ -235,22 +273,42 @@ const OrdersPage = () => {
       const remainingAmount = order.total - (order.paymentOption === 'cod' ? initialPayment : 0);
       const trackingUrl = `${window.location.origin}/orders/${order._id}`;
       
-      const message = `*${order.paymentOption === 'full' ? 'Payment Confirmed & ' : ''}Order Placed Successfully!*\n\n` +
-        `Order ID: #${order._id.substring(0, 8)}\n` +
-        `Customer: ${order.customerName}\n\n` +
-        `*Order Details:*\n` +
+      const message = `*${order.paymentOption === 'full' ? 'Payment Confirmed & ' : ''}Order Placed Successfully!*
+
+` +
+        `Order ID: #${order._id.substring(0, 8)}
+` +
+        `Customer: ${order.customerName}
+
+` +
+        `*Order Details:*
+` +
         order.items.map(item => 
           `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
         ).join('\n') +
-        `\n\n*Payment Details:*\n` +
-        `Total Amount: ₹${order.total.toLocaleString('en-IN')}\n` +
+        `
+
+*Payment Details:*
+` +
+        `Total Amount: ₹${order.total.toLocaleString('en-IN')}
+` +
         (order.paymentOption === 'cod' ? 
-          `Initial Payment Received: ₹${initialPayment.toLocaleString('en-IN')}\n` +
-          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}\n\n` :
-          `Full Payment Received: ₹${order.total.toLocaleString('en-IN')}\n\n`) +
-        `*Order Tracking:*\n` +
-        `You can track your order status at: ${trackingUrl}\n\n` +
-        `Our team will update you on the order progress.\n\n` +
+          `Initial Payment Received: ₹${initialPayment.toLocaleString('en-IN')}
+` +
+          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}
+
+` :
+          `Full Payment Received: ₹${order.total.toLocaleString('en-IN')}
+
+`) +
+        `*Order Tracking:*
+` +
+        `You can track your order status at: ${trackingUrl}
+
+` +
+        `Our team will update you on the order progress.
+
+` +
         `Thank you for shopping with us!`;
       
       // Send to customer's WhatsApp
@@ -284,13 +342,24 @@ const OrdersPage = () => {
       
       const trackingUrl = `${window.location.origin}/orders/${order._id}`;
       
-      const message = `*Order Status Update*\n\n` +
-        `Order ID: #${order._id.substring(0, 8)}\n` +
-        `Customer: ${order.customerName}\n\n` +
-        `*Status: ${statusText}*\n` +
-        `${statusDescription}\n\n` +
-        `*Order Tracking:*\n` +
-        `You can track your order status at: ${trackingUrl}\n\n` +
+      const message = `*Order Status Update*
+
+` +
+        `Order ID: #${order._id.substring(0, 8)}
+` +
+        `Customer: ${order.customerName}
+
+` +
+        `*Status: ${statusText}*
+` +
+        `${statusDescription}
+
+` +
+        `*Order Tracking:*
+` +
+        `You can track your order status at: ${trackingUrl}
+
+` +
         `Thank you for shopping with us!`;
       
       // Send to customer's WhatsApp
