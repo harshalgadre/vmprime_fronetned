@@ -93,6 +93,23 @@ const Dashboard = () => {
         </div>
       </header>
       
+      <nav className="border-b bg-muted">
+        <div className="container flex space-x-4 px-4 py-2">
+          <a 
+            href="/admin/products" 
+            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-background transition-colors"
+          >
+            Products
+          </a>
+          <a 
+            href="/admin/orders" 
+            className="px-3 py-2 rounded-md text-sm font-medium hover:bg-background transition-colors"
+          >
+            Orders
+          </a>
+        </div>
+      </nav>
+      
       <div className="flex-1 container px-4 py-6">
         <Outlet />
       </div>
