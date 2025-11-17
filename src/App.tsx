@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import CartPage from "./pages/CartPage"; // Import CartPage
 import CheckoutPage from "./pages/CheckoutPage"; // Import CheckoutPage
 import OrderTrackingPage from "./pages/OrderTrackingPage"; // Import OrderTrackingPage
+import TrackOrderPage from "./pages/TrackOrderPage"; // Import TrackOrderPage
 import Dashboard from "./pages/admin/Dashboard";
 import ProductsPage from "./pages/admin/ProductsPage";
 import OrdersPage from "./pages/admin/OrdersPage";
@@ -37,6 +38,7 @@ function App() {
               <Route path="/faqs" element={<FAQ />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/track-order" element={<TrackOrderPage />} />
               <Route path="/orders/:orderId?" element={<OrderTrackingPage />} />
               
               {/* Protected Admin Routes */}

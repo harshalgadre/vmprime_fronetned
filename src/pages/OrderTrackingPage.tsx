@@ -7,35 +7,55 @@ import PromotionalBanner from "@/components/PromotionalBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { getOrderByTrackingId } from "@/services/api";
+
+interface OrderItem {
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  color?: {
+    name: string;
+    color: string;
+  };
+}
+
+interface Order {
+  _id: string;
+  status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  createdAt: string;
+  customerName: string;
+  customerPhone: string;
+  deliveryAddress: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  total: number;
+}
 
 const OrderTrackingPage = () => {
-  const { id } = useParams();
-  const [order, setOrder] = useState(null);
+  const { orderId } = useParams();
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrder();
-  }, [id]);
+  }, [orderId]);
 
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      // Use relative path in production, full URL in development
-      const baseUrl = import.meta.env.DEV 
-        ? 'https://localhost:5000/api' 
-        : '/api';
-      
-      const response = await fetch(`${baseUrl}/orders/track/${id}`);
-      
-      if (!response.ok) {
-        throw new Error('Order not found');
+      // If no orderId is provided, show error
+      if (!orderId) {
+        setError('No order ID provided');
+        setLoading(false);
+        return;
       }
-      
-      const data = await response.json();
+      const data = await getOrderByTrackingId(orderId);
       setOrder(data);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -127,7 +147,7 @@ const OrderTrackingPage = () => {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-primary mb-4">Order Not Found</h1>
             <p className="text-muted-foreground mb-6">
-              We couldn't find an order with ID: {id}
+              We couldn't find an order with ID: {orderId || 'No ID provided'}
             </p>
             <Button onClick={() => window.history.back()}>
               Go Back
@@ -149,7 +169,7 @@ const OrderTrackingPage = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-primary mb-2">Order Tracking</h1>
             <p className="text-muted-foreground">
-              Track the status of your order #{order._id?.substring(0, 8)}
+              Track the status of your order #{order?._id?.substring(0, 8)}
             </p>
           </div>
           
@@ -165,14 +185,14 @@ const OrderTrackingPage = () => {
                 {/* Status items */}
                 <div className="space-y-8">
                   {['pending', 'processing', 'shipped', 'completed'].map((status, index) => {
-                    const isCompleted = (
+                    const isCompleted = order ? (
                       (order.status === 'processing' && status === 'pending') ||
                       (order.status === 'shipped' && (status === 'pending' || status === 'processing')) ||
                       (order.status === 'completed' && (status === 'pending' || status === 'processing' || status === 'shipped')) ||
                       order.status === status
-                    );
+                    ) : false;
                     
-                    const isActive = order.status === status;
+                    const isActive = order ? order.status === status : false;
                     
                     return (
                       <div key={status} className="relative flex items-start">
@@ -206,7 +226,7 @@ const OrderTrackingPage = () => {
                             </p>
                           )}
                           
-                          {order.status === 'cancelled' && status === 'cancelled' && (
+                          {order && order.status === 'cancelled' && status === 'cancelled' && (
                             <p className="text-sm text-muted-foreground mt-1">
                               {getStatusDescription('cancelled')}
                             </p>
@@ -229,12 +249,12 @@ const OrderTrackingPage = () => {
                 <div className="space-y-3">
                   <div>
                     <div className="text-sm text-muted-foreground">Order ID</div>
-                    <div className="font-medium">#{order._id?.substring(0, 8)}</div>
+                    <div className="font-medium">#{order?._id?.substring(0, 8)}</div>
                   </div>
                   
                   <div>
                     <div className="text-sm text-muted-foreground">Order Date</div>
-                    <div>{formatDate(order.createdAt)}</div>
+                    <div>{order && formatDate(order.createdAt)}</div>
                   </div>
                   
                   <div>
@@ -242,14 +262,14 @@ const OrderTrackingPage = () => {
                     <Badge 
                       variant="outline" 
                       className={
-                        order.status === 'pending' ? "bg-yellow-50 text-yellow-600 border-yellow-300" :
-                        order.status === 'processing' ? "bg-blue-50 text-blue-600 border-blue-300" :
-                        order.status === 'shipped' ? "bg-indigo-50 text-indigo-600 border-indigo-300" :
-                        order.status === 'completed' ? "bg-green-50 text-green-600 border-green-300" :
+                        order && order.status === 'pending' ? "bg-yellow-50 text-yellow-600 border-yellow-300" :
+                        order && order.status === 'processing' ? "bg-blue-50 text-blue-600 border-blue-300" :
+                        order && order.status === 'shipped' ? "bg-indigo-50 text-indigo-600 border-indigo-300" :
+                        order && order.status === 'completed' ? "bg-green-50 text-green-600 border-green-300" :
                         "bg-red-50 text-red-600 border-red-300"
                       }
                     >
-                      {getStatusText(order.status)}
+                      {order && getStatusText(order.status)}
                     </Badge>
                   </div>
                   
@@ -257,7 +277,7 @@ const OrderTrackingPage = () => {
                     <div className="text-sm text-muted-foreground">Total Amount</div>
                     <div className="flex items-center">
                       <IndianRupee className="w-4 h-4" />
-                      {order.total?.toLocaleString('en-IN')}
+                      {order && order.total?.toLocaleString('en-IN')}
                     </div>
                   </div>
                 </div>
@@ -271,19 +291,19 @@ const OrderTrackingPage = () => {
                 <div className="space-y-3">
                   <div>
                     <div className="text-sm text-muted-foreground">Customer Name</div>
-                    <div className="font-medium">{order.customerName}</div>
+                    <div className="font-medium">{order && order.customerName}</div>
                   </div>
                   
                   <div>
                     <div className="text-sm text-muted-foreground">Phone Number</div>
-                    <div>{order.customerPhone}</div>
+                    <div>{order && order.customerPhone}</div>
                   </div>
                   
                   <div>
                     <div className="text-sm text-muted-foreground">Delivery Address</div>
                     <div className="flex items-start">
                       <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                      <div>{order.deliveryAddress}</div>
+                      <div>{order && order.deliveryAddress}</div>
                     </div>
                   </div>
                 </div>
@@ -297,7 +317,7 @@ const OrderTrackingPage = () => {
               <h2 className="text-xl font-semibold mb-4">Order Items</h2>
               
               <div className="space-y-4">
-                {order.items?.map((item, index) => (
+                {order && order.items?.map((item, index) => (
                   <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
                     <img
                       src={item.image}

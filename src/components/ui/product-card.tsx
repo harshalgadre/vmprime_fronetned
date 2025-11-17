@@ -12,7 +12,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/products/${product.id}`);
+    navigate(`/products/${product._id}`);
   };
 
   if (variant === 'compact') {

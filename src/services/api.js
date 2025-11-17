@@ -102,6 +102,16 @@ export const getOrderById = async (id) => {
   return handleResponse(response);
 };
 
+export const getOrderByTrackingId = async (id) => {
+  // If no ID is provided, throw an error
+  if (!id) {
+    throw new Error('Order ID is required');
+  }
+  
+  const response = await fetch(`${API_BASE_URL}/orders/${id}`);
+  return handleResponse(response);
+};
+
 export const createOrder = async (orderData) => {
   const response = await fetch(`${API_BASE_URL}/orders`, {
     method: 'POST',

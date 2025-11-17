@@ -31,7 +31,7 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <a href="/shop?category=men" className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <a href="/shop?gender=Men" className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="w-full aspect-[4/3] md:aspect-[16/9] bg-gray-100 overflow-hidden">
                 <img src={maleAnalog} alt="Men's Analog Watch" className="w-full h-full object-cover" />
               </div>
@@ -40,7 +40,7 @@ const Index = () => {
               </div>
             </a>
 
-            <a href="/shop?category=women" className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <a href="/shop?gender=Women" className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               <div className="w-full aspect-[4/3] md:aspect-[16/9] bg-gray-100 overflow-hidden">
                 <img src={femaleAnalog} alt="Women's Analog Watch" className="w-full h-full object-cover" />
               </div>
