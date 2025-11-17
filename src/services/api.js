@@ -135,14 +135,6 @@ export const updateOrderStatus = async (id, status) => {
   return handleResponse(response);
 };
 
-export const deleteOrder = async (id) => {
-  const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
-    method: 'DELETE',
-    headers: ADMIN_AUTH_HEADER
-  });
-  return handleResponse(response);
-};
-
 // Contact API calls
 export const submitContactForm = async (contactData) => {
   const response = await fetch(`${API_BASE_URL}/contact`, {

@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getOrders, updateOrderStatus, deleteOrder } from "@/services/api";
+import { getOrders, updateOrderStatus } from "@/services/api";
 
 interface OrderItem {
   productId: string;
@@ -66,7 +66,6 @@ const OrdersPage = () => {
   const [transactionId, setTransactionId] = useState("");
   const [verificationNotes, setVerificationNotes] = useState("");
   const [initialPayment] = useState(200); // Fixed initial payment amount
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const orderStatuses = [
     {
@@ -170,47 +169,6 @@ const OrdersPage = () => {
     } catch (error: any) {
       console.error("Failed to verify payment:", error);
       alert("Failed to verify payment: " + error.message);
-    }
-  };
-
-  // Function to delete all test orders
-  const handleDeleteTestOrders = async () => {
-    if (!window.confirm("Are you sure you want to delete ALL test orders? This action cannot be undone.")) {
-      return;
-    }
-    
-    try {
-      setIsDeleting(true);
-      
-      // Filter test orders - you can customize this logic based on how you identify test orders
-      // For example, orders with customer names like "test", "demo", etc.
-      const testOrders = orders.filter(order => 
-        order.customerName.toLowerCase().includes('test') ||
-        order.customerName.toLowerCase().includes('demo') ||
-        order.customerName.toLowerCase().includes('sample') ||
-        order.customerPhone.includes('0000000000') ||
-        order.customerPhone.includes('1234567890')
-      );
-      
-      if (testOrders.length === 0) {
-        alert("No test orders found.");
-        setIsDeleting(false);
-        return;
-      }
-      
-      // Delete each test order
-      const deletePromises = testOrders.map(order => deleteOrder(order._id));
-      await Promise.all(deletePromises);
-      
-      // Refresh the orders list
-      fetchOrders();
-      
-      alert(`Successfully deleted ${testOrders.length} test order(s)!`);
-    } catch (error: any) {
-      console.error("Failed to delete test orders:", error);
-      alert("Failed to delete test orders: " + error.message);
-    } finally {
-      setIsDeleting(false);
     }
   };
 
@@ -386,18 +344,9 @@ const OrdersPage = () => {
 
   return (
     <div>
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Orders</h1>
-          <p className="text-muted-foreground">Manage customer orders</p>
-        </div>
-        <Button 
-          variant="destructive" 
-          onClick={handleDeleteTestOrders}
-          disabled={isDeleting || orders.length === 0}
-        >
-          {isDeleting ? "Deleting..." : "Delete Test Orders"}
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">Orders</h1>
+        <p className="text-muted-foreground">Manage customer orders</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
