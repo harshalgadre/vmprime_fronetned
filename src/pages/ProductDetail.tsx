@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Product } from "@/types/product";
 import { useCart } from "@/contexts/CartContext"; // Import cart context
 import { getProductById } from "@/services/api";
+import { QRCodeSVG } from "qrcode.react";
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showQRCode, setShowQRCode] = useState(false);
   const { addToCart } = useCart(); // Use cart context
   
   useEffect(() => {
@@ -113,10 +115,16 @@ const ProductDetail = () => {
       const selectedColorName = product.colors?.[selectedColor]?.name || "Default";
       const selectedColorValue = product.colors?.[selectedColor]?.color || "#000000";
       
+      // Generate UPI payment URL
+      const upiId = "7357762652@ybl"; // Your UPI ID
+      const amount = product.price;
+      const upiUrl = `upi://pay?pa=${upiId}&pn=Store Name&am=${amount}&cu=INR&tn=Product Purchase`;
+      
       const message = `Hi, I'm interested in purchasing the *${product.name}*\n\n` +
         `*Product Details:*\n` +
         `• Price: ₹${product.price?.toLocaleString('en-IN')}\n` +
         `• Color: ${selectedColorName} (${selectedColorValue})\n\n` +
+        
         `I would like to get more details and know the buying options.\n\n` +
         `Please let me know the available payment methods and delivery options.`;
       
@@ -127,6 +135,113 @@ const ProductDetail = () => {
       window.open(whatsappUrl, '_blank');
     }
   };
+  
+  // Generate and download QR code
+  const handleGenerateQRCode = () => {
+    if (product) {
+      // Create a temporary link to download the QR code
+      const upiId = "7357762652@ybl"; // Your UPI ID
+      const amount = product.price;
+      const upiUrl = `upi://pay?pa=${upiId}&pn=Store Name&am=${amount}&cu=INR&tn=Product Purchase`;
+      
+      // Create a temporary canvas element to generate the QR code
+      const canvas = document.createElement('canvas');
+      
+      // Since we can't directly send the QR code via WhatsApp URL,
+      // we'll show a modal with the QR code and instructions
+      alert(`To complete your purchase:
+
+1. Scan the QR code that will appear on the screen
+2. Complete the payment of ₹${amount.toLocaleString('en-IN')}
+3. After payment, please notify us with your transaction ID
+
+Click OK to see the QR code.`);
+      
+      // In a real implementation, you would show a modal with the QR code
+      // For now, we'll just show an alert with instructions
+    }
+  };
+  
+  // Show QR code modal
+  const showQRCodeModal = () => {
+    if (product) {
+      const upiId = "7357762652@ybl"; // Your UPI ID
+      const amount = product.price;
+      const upiUrl = `upi://pay?pa=${upiId}&pn=Store Name&am=${amount}&cu=INR&tn=Product Purchase`;
+      
+      // Create modal content
+      const modalContent = `
+        <div style="text-align: center; padding: 20px;">
+          <h3>Scan QR Code to Pay</h3>
+          <p>Amount: ₹${amount.toLocaleString('en-IN')}</p>
+          <div id="qr-code-container" style="margin: 20px auto; width: 200px; height: 200px;"></div>
+          <p>Scan this QR code with any UPI app to complete your payment</p>
+          <button onclick="document.getElementById('qr-modal').style.display='none'" style="margin-top: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+        </div>
+      `;
+      
+      // Create modal element
+      const modal = document.createElement('div');
+      modal.id = 'qr-modal';
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      `;
+      
+      const modalInner = document.createElement('div');
+      modalInner.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      `;
+      
+      modalInner.innerHTML = modalContent;
+      modal.appendChild(modalInner);
+      document.body.appendChild(modal);
+      
+      // Note: In a real implementation, you would render the QRCodeSVG component
+      // inside the modal, but this requires more complex DOM manipulation
+    }
+  };
+  
+  // Handle sharing QR code via WhatsApp
+  // const handleShareQRCode = () => {
+  //   if (product) {
+  //     const upiId = "7357762652@ybl"; // Your UPI ID
+  //     const amount = product.price;
+      
+  //     const message = `Hi, I'm interested in purchasing the *${product.name}*\n\n` +
+  //       `*Product Details:*\n` +
+  //       `• Price: ₹${product.price?.toLocaleString('en-IN')}\n` +
+  //       `• Color: ${product.colors?.[selectedColor]?.name || "Default"}\n\n` +
+  //       `*Payment Instructions:*\n` +
+  //       `Please scan the attached QR code to complete your payment of ₹${amount.toLocaleString('en-IN')} via UPI.\n\n` +
+  //       `After payment, please share your transaction ID for order confirmation.`;
+      
+  //     // Replace with your actual WhatsApp business number
+  //     const whatsappNumber = "917357762652"; // Include country code without +
+  //     const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+      
+  //     // Note: We can't directly attach the QR code image via URL scheme
+  //     // In a real implementation, you would need to:
+  //     // 1. Generate and save the QR code as an image
+  //     // 2. Upload it to a server
+  //     // 3. Include the image URL in the WhatsApp message
+      
+  //     window.open(whatsappUrl, '_blank');
+      
+  //     // Show instructions to the user
+  //     alert("The QR code is displayed on the page. Please take a screenshot and send it along with the message.");
+  //   }
+  // };
 
   const discountPercentage = product ? calculateDiscount() : 0;
 
@@ -318,15 +433,17 @@ const ProductDetail = () => {
               >
                 BUY IT NOW
               </Button>
-              <Button 
-                onClick={handleWhatsAppInquiry}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold transition-all duration-300 hover:shadow-lg gap-2"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                ORDER ON WHATSAPP
-              </Button>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  onClick={handleWhatsAppInquiry}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-6 text-lg font-semibold transition-all duration-300 hover:shadow-lg gap-2"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  WHATSAPP
+                </Button>
+              </div>
             </div>
             
             {/* COD Info */}
@@ -378,12 +495,12 @@ const ProductDetail = () => {
               <AccordionTrigger className="text-xl font-semibold">Description</AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
                 <div className="space-y-4">
-                  <p>{product.description || "No description available for this product."}</p>
-                  {product.features && product.features.length > 0 && (
+                  <p>{product?.description || "No description available for this product."}</p>
+                  {product?.features && product.features.length > 0 && (
                     <div>
                       <h4 className="font-semibold text-foreground mb-3">Key Features:</h4>
                       <ul className="space-y-2">
-                        {product.features.map((feature, index) => (
+                        {product?.features?.map((feature, index) => (
                           <li key={index} className="flex items-center gap-2">
                             <span className="text-success">•</span>
                             {feature}

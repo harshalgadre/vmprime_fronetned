@@ -348,6 +348,31 @@ const CheckoutPage = () => {
               </CardContent>
             </Card>
             
+            {/* QR Code Payment Option */}
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-bold mb-4">UPI Payment</h2>
+                <p className="text-muted-foreground mb-4">
+                  Scan the QR code below to make your payment via UPI
+                </p>
+                <div className="flex flex-col items-center space-y-4">
+                  <img 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${paymentOption === 'full' ? total : initialPayment}&cu=INR&tn=Order Payment`} 
+                    alt="UPI Payment QR Code" 
+                    className="w-48 h-48"
+                  />
+                  <div className="text-center">
+                    <p className="font-medium">
+                      Amount: ₹{(paymentOption === 'full' ? total : initialPayment).toLocaleString('en-IN')}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Scan with any UPI app (Google Pay, PhonePe, etc.)
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
             {/* Order Summary for Mobile */}
             <div className="lg:hidden">
               <Card>

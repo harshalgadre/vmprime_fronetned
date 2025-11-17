@@ -155,7 +155,8 @@ const OrdersPage = () => {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to verify payment');
+        const errorText = await response.text();
+        throw new Error(`Failed to verify payment: ${response.status} - ${errorText}`);
       }
       
       // Refresh the orders list
@@ -163,6 +164,10 @@ const OrdersPage = () => {
       
       // Close the dialog
       setSelectedOrder(null);
+      
+      // Reset form fields
+      setTransactionId('');
+      setVerificationNotes('');
       
       // Show success message
       alert("Payment verified successfully!");
@@ -211,10 +216,14 @@ const OrdersPage = () => {
 ` +
           `UPI ID: ${upiId}
 ` +
-          `UPI QR Code: https://vmptime-backend.onrender.com/api/qr-code?upi=${upiId}&amount=${initialPayment}&note=Order ${order._id.substring(0, 8)} - Initial Payment
+          `Amount: ₹${initialPayment}
+` +
+          `Note: Order ${order._id.substring(0, 8)} - Initial Payment
 
 ` +
-          `Please scan the QR code above to complete the initial payment of ₹${initialPayment}.
+          `Please use your UPI app to scan the QR code for payment of ₹${initialPayment}.
+` +
+          `Scan QR Code: https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${initialPayment}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Initial Payment
 ` +
           `After payment, please notify us with your transaction ID.
 
@@ -246,10 +255,14 @@ const OrdersPage = () => {
 ` +
           `UPI ID: ${upiId}
 ` +
-          `UPI QR Code: https://vmptime-backend.onrender.com/api/qr-code?upi=${upiId}&amount=${order.total}&note=Order ${order._id.substring(0, 8)} - Full Payment
+          `Amount: ₹${order.total}
+` +
+          `Note: Order ${order._id.substring(0, 8)} - Full Payment
 
 ` +
-          `Please scan the QR code above to complete the full payment of ₹${order.total.toLocaleString('en-IN')}.
+          `Please use your UPI app to scan the QR code for payment of ₹${order.total}.
+` +
+          `Scan QR Code: https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${order.total}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Full Payment
 ` +
           `After payment, please notify us with your transaction ID.
 
