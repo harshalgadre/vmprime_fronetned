@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Clock, Package, CheckCircle, XCircle, Truck, MapPin, IndianRupee } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -34,6 +34,7 @@ interface Order {
 }
 
 const OrderTrackingPage = () => {
+  const navigate = useNavigate();
   const { orderId } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,12 +147,20 @@ const OrderTrackingPage = () => {
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-primary mb-4">Order Not Found</h1>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-2">
               We couldn't find an order with ID: {orderId || 'No ID provided'}
             </p>
-            <Button onClick={() => window.history.back()}>
-              Go Back
-            </Button>
+            <p className="text-muted-foreground mb-6">
+              Please check the order ID and try again, or contact customer support if you continue to experience issues.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={() => window.history.back()}>
+                Go Back
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/track-order')}>
+                Track Another Order
+              </Button>
+            </div>
           </div>
         </main>
         <Footer />
