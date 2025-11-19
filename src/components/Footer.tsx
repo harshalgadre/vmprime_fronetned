@@ -80,22 +80,6 @@ const Footer = () => {
               </div>
             </div>
           </div>
-
-          {/* Map */}
-          <div className="md:col-span-2 lg:col-span-3 h-[200px] rounded-lg overflow-hidden border border-primary-foreground/20">
-            <iframe
-              src="https://www.google.com/maps?q=Alsba+market,+Musafirkhana+Road,+Mumbai+400001&output=embed"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Alsba Market Location"
-              className="transition-all duration-300"
-            />
-          </div>
-        </div>
         
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center">
           <p className="text-primary-foreground/60">
