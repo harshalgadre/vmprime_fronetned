@@ -74,12 +74,13 @@ const Footer = () => {
                     <MapPin className="w-4 h-4 text-success" />
                   </div>
                   <span className="text-primary-foreground/80 leading-tight">
-                    Alsba market, Musafirkhana Road, Mumbai 400001
+                    Musafirkhana Road, Mumbai 400001
                   </span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
         
         <div className="border-t border-primary-foreground/20 mt-12 pt-8 text-center">
           <p className="text-primary-foreground/60">
