@@ -75,15 +75,6 @@ const Footer = () => {
                   </div>
                   <span className="text-primary-foreground/80 leading-tight">
                     Alsba market, Musafirkhana Road, Mumbai 400001
-                    <br />
-                    <a
-                      href="https://www.google.com/maps/dir//Alsba+market,+4th,+Musafir+Khana+Rd,+next+to+Burma+Bazar,+Mandvi+Koliwada,+Chhatrapati+Shivaji+Terminus+Area,+Fort,+Mumbai,+Maharashtra+400001/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x3be7d1d998b45a1f:0x7193bcf751248fee?sa=X&ved=1t:57443&ictx=111"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-success underline text-sm block mt-1"
-                    >
-                      Get Directions
-                    </a>
                   </span>
                 </div>
               </div>
