@@ -21,8 +21,7 @@ const CheckoutPage = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [orderData, setOrderData] = useState(null); // Store order data for admin communication
   const [paymentOption, setPaymentOption] = useState("cod"); // "cod" or "full"
-  const [initialPayment] = useState(200); // Fixed initial payment amount for COD
-  
+
   // Form state
   const [formData, setFormData] = useState({
     fullName: "",
@@ -44,7 +43,6 @@ const CheckoutPage = () => {
 
   const shipping = subtotal > 1999 ? 0 : 100; // Free shipping over ₹1999
   const total = subtotal + shipping;
-  const remainingAmount = total - initialPayment;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -159,21 +157,21 @@ const CheckoutPage = () => {
             <p className="text-muted-foreground mb-6">
               {paymentOption === "full" 
                 ? "Thank you for your order. Our team will contact you shortly to confirm your payment." 
-                : "Thank you for your order. Our team will contact you shortly with payment instructions."}
+                : "Thank you for your order. Our team will contact you shortly with delivery details."}
             </p>
             <div className="bg-success/5 border border-success/20 rounded-lg p-6 mb-6 text-left">
               <h2 className="font-semibold text-success mb-2">Order Summary</h2>
               <p className="text-sm">Order ID: #{orderId.substring(0, 8)}</p>
               <p className="text-sm">Total Amount: ₹{total.toLocaleString('en-IN')}</p>
               <p className="text-sm">
-                Payment Method: {paymentOption === "full" ? "Full Payment Online" : "₹200 Initial Payment (COD)"}
+                Payment Method: {paymentOption === "full" ? "Full Payment Online" : "Cash on Delivery"}
               </p>
               <p className="text-sm mt-2">
                 <span className="font-medium">Next Steps:</span>
                 <br />
                 {paymentOption === "full" 
                   ? "1. Our team will contact you to confirm your payment\n2. Your order will be processed after payment verification" 
-                  : "1. You'll receive payment instructions via WhatsApp\n2. Pay ₹200 initial amount via UPI\n3. Our team will confirm payment and process your order"}
+                  : "1. Our team will contact you to confirm your order\n2. Pay the full amount on delivery\n3. Your order will be processed after confirmation"}
               </p>
               <p className="text-sm">Expected Delivery: 3-7 business days</p>
             </div>
@@ -340,7 +338,7 @@ const CheckoutPage = () => {
                     <Label htmlFor="cod-payment" className="flex-grow">
                       <div className="font-medium">Cash on Delivery (COD)</div>
                       <div className="text-sm text-muted-foreground">
-                        Pay ₹200 initial amount now, remaining ₹{remainingAmount.toLocaleString('en-IN')} on delivery
+                        Pay the complete amount of ₹{total.toLocaleString('en-IN')} on delivery
                       </div>
                     </Label>
                   </div>
@@ -348,30 +346,32 @@ const CheckoutPage = () => {
               </CardContent>
             </Card>
             
-            {/* QR Code Payment Option */}
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-bold mb-4">UPI Payment</h2>
-                <p className="text-muted-foreground mb-4">
-                  Scan the QR code below to make your payment via UPI
-                </p>
-                <div className="flex flex-col items-center space-y-4">
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${paymentOption === 'full' ? total : initialPayment}&cu=INR&tn=Order Payment`} 
-                    alt="UPI Payment QR Code" 
-                    className="w-48 h-48"
-                  />
-                  <div className="text-center">
-                    <p className="font-medium">
-                      Amount: ₹{(paymentOption === 'full' ? total : initialPayment).toLocaleString('en-IN')}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Scan with any UPI app (Google Pay, PhonePe, etc.)
-                    </p>
+            {/* QR Code Payment Option - Only show when Full Payment is selected */}
+            {paymentOption === "full" && (
+              <Card>
+                <CardContent className="p-6">
+                  <h2 className="text-xl font-bold mb-4">UPI Payment</h2>
+                  <p className="text-muted-foreground mb-4">
+                    Scan the QR code below to make your payment via UPI
+                  </p>
+                  <div className="flex flex-col items-center space-y-4">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${total}&cu=INR&tn=Order Payment`} 
+                      alt="UPI Payment QR Code" 
+                      className="w-48 h-48"
+                    />
+                    <div className="text-center">
+                      <p className="font-medium">
+                        Amount: ₹{total.toLocaleString('en-IN')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Scan with any UPI app (Google Pay, PhonePe, etc.)
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
             
             {/* Order Summary for Mobile */}
             <div className="lg:hidden">
@@ -470,8 +470,7 @@ const CheckoutPage = () => {
                   className="w-full bg-success hover:bg-success/90 text-success-foreground py-6 text-lg"
                   disabled={isProcessingPayment}
                 >
-                  {isProcessingPayment ? "Processing Order..." : 
-                   paymentOption === "full" ? `Proceed to Payment` : "Place Order"}
+                  {isProcessingPayment ? "Processing Order..." : "Place Order"}
                 </Button>
                 
                 <p className="text-xs text-muted-foreground mt-4 text-center">
@@ -488,8 +487,7 @@ const CheckoutPage = () => {
               className="w-full bg-success hover:bg-success/90 text-success-foreground py-6 text-lg"
               disabled={isProcessingPayment}
             >
-              {isProcessingPayment ? "Processing Order..." : 
-               paymentOption === "full" ? `Proceed to Payment` : "Place Order"}
+              {isProcessingPayment ? "Processing Order..." : "Place Order"}
             </Button>
           </div>
         </form>
