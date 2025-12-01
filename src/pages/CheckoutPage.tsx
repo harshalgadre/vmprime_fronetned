@@ -78,29 +78,11 @@ const CheckoutPage = () => {
         shipping: shipping,
         total: total,
         status: 'pending',
-        paymentOption: paymentOption, // Add payment option to order data
-        paymentStatus: paymentOption === 'full' ? 'pending' : 'pending' // Set initial payment status
+        paymentOption: "cod", // Add payment option to order data
+        paymentStatus: 'pending' // Set initial payment status
       };
       
-      if (paymentOption === "full") {
-        // Initialize full payment
-        const paymentResult = await initializePayment({
-          amount: total * 100, // Convert to paise for Indian Rupees
-          currency: 'INR',
-          orderId: 'order_' + Date.now(), // Generate a unique order ID
-          customerName: formData.fullName,
-          customerEmail: formData.email,
-          customerPhone: formData.phone
-        });
-        
-        // Note: Even if payment is processed, we still set status to pending
-        // because admin needs to verify the payment
-        /*
-        if (!paymentResult.success) {
-          throw new Error('Payment processing failed');
-        }
-        */
-      }
+      
       
       // Send order to backend
       const order = await createOrder(orderData);
@@ -155,23 +137,21 @@ const CheckoutPage = () => {
             </div>
             <h1 className="text-3xl font-bold text-primary mb-4">Order Placed Successfully!</h1>
             <p className="text-muted-foreground mb-6">
-              {paymentOption === "full" 
-                ? "Thank you for your order. Our team will contact you shortly to confirm your payment." 
-                : "Thank you for your order. Our team will contact you shortly with delivery details."}
+              Thank you for your order. Our team will contact you shortly with delivery details.
             </p>
             <div className="bg-success/5 border border-success/20 rounded-lg p-6 mb-6 text-left">
               <h2 className="font-semibold text-success mb-2">Order Summary</h2>
               <p className="text-sm">Order ID: #{orderId.substring(0, 8)}</p>
               <p className="text-sm">Total Amount: ₹{total.toLocaleString('en-IN')}</p>
               <p className="text-sm">
-                Payment Method: {paymentOption === "full" ? "Full Payment Online" : "Cash on Delivery"}
+                Payment Method: Cash on Delivery
               </p>
               <p className="text-sm mt-2">
                 <span className="font-medium">Next Steps:</span>
                 <br />
-                {paymentOption === "full" 
-                  ? "1. Our team will contact you to confirm your payment\n2. Your order will be processed after payment verification" 
-                  : "1. Our team will contact you to confirm your order\n2. Pay the full amount on delivery\n3. Your order will be processed after confirmation"}
+                1. Our team will contact you to confirm your order
+                2. Pay the full amount on delivery
+                3. Your order will be processed after confirmation
               </p>
               <p className="text-sm">Expected Delivery: 3-7 business days</p>
             </div>
@@ -322,56 +302,16 @@ const CheckoutPage = () => {
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold mb-4">Payment Options</h2>
                 
-                <RadioGroup value={paymentOption} onValueChange={setPaymentOption} className="space-y-4">
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <RadioGroupItem value="full" id="full-payment" />
-                    <Label htmlFor="full-payment" className="flex-grow">
-                      <div className="font-medium">Full Payment Online</div>
-                      <div className="text-sm text-muted-foreground">
-                        Pay the complete amount of ₹{total.toLocaleString('en-IN')} now. Our team will contact you to confirm payment.
-                      </div>
-                    </Label>
+                <div className="p-4 border rounded-lg">
+                  <div className="font-medium">Cash on Delivery (COD)</div>
+                  <div className="text-sm text-muted-foreground mt-1">
                   </div>
-                  
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <RadioGroupItem value="cod" id="cod-payment" />
-                    <Label htmlFor="cod-payment" className="flex-grow">
-                      <div className="font-medium">Cash on Delivery (COD)</div>
-                      <div className="text-sm text-muted-foreground">
-                        Pay the complete amount of ₹{total.toLocaleString('en-IN')} on delivery
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
+                </div>
+                <input type="hidden" value="cod" name="paymentOption" />
               </CardContent>
             </Card>
             
-            {/* QR Code Payment Option - Only show when Full Payment is selected */}
-            {paymentOption === "full" && (
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-bold mb-4">UPI Payment</h2>
-                  <p className="text-muted-foreground mb-4">
-                    Scan the QR code below to make your payment via UPI
-                  </p>
-                  <div className="flex flex-col items-center space-y-4">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${total}&cu=INR&tn=Order Payment`} 
-                      alt="UPI Payment QR Code" 
-                      className="w-48 h-48"
-                    />
-                    <div className="text-center">
-                      <p className="font-medium">
-                        Amount: ₹{total.toLocaleString('en-IN')}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Scan with any UPI app (Google Pay, PhonePe, etc.)
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            
             
             {/* Order Summary for Mobile */}
             <div className="lg:hidden">

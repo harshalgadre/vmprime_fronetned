@@ -50,10 +50,8 @@ interface Order {
   shipping: number;
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
-  paymentStatus?: 'pending' | 'verified' | 'failed';
-  transactionId?: string;
-  verificationNotes?: string;
-  paymentOption?: 'cod' | 'full';
+  paymentStatus?: 'pending' | 'confirmed' | 'failed';
+  paymentOption?: 'cod';
   createdAt: string;
 }
 
@@ -63,9 +61,7 @@ const OrdersPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [activeTab, setActiveTab] = useState("all");
-  const [transactionId, setTransactionId] = useState("");
   const [verificationNotes, setVerificationNotes] = useState("");
-  const [initialPayment] = useState(200); // Fixed initial payment amount
 
   const orderStatuses = [
     {
@@ -132,9 +128,9 @@ const OrdersPage = () => {
     }
   };
 
-  const handleVerifyPayment = async (orderId: string) => {
+  const handleConfirmOrder = async (orderId: string) => {
     try {
-      // Update the order with payment verification status
+      // Update the order with payment confirmation status
       // We need to make a direct fetch call here since this is a special endpoint
       // In production, we'll use relative path; in development, we'll use the full URL
       const baseUrl = import.meta.env.DEV 
@@ -148,15 +144,14 @@ const OrdersPage = () => {
           'x-admin-auth': 'admin-secret-key'
         },
         body: JSON.stringify({ 
-          paymentStatus: 'verified',
-          transactionId: transactionId,
+          paymentStatus: 'confirmed',
           verificationNotes: verificationNotes
         })
       });
       
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to verify payment: ${response.status} - ${errorText}`);
+        throw new Error(`Failed to confirm order: ${response.status} - ${errorText}`);
       }
       
       // Refresh the orders list
@@ -166,128 +161,22 @@ const OrdersPage = () => {
       setSelectedOrder(null);
       
       // Reset form fields
-      setTransactionId('');
       setVerificationNotes('');
       
       // Show success message
-      alert("Payment verified successfully!");
+      alert("Order confirmed successfully!");
     } catch (error: any) {
-      console.error("Failed to verify payment:", error);
-      alert("Failed to verify payment: " + error.message);
+      console.error("Failed to confirm order:", error);
+      alert("Failed to confirm order: " + error.message);
     }
   };
 
-  // Function to send payment request message to customer (for both COD and Full Payment orders)
-  const sendPaymentRequest = (order: Order) => {
+  // Function to send order confirmation message to customer (COD-focused)
+  const sendOrderConfirmation = (order: Order) => {
     try {
-      const upiId = "7357762652@ybl"; // Your UPI ID
-      
-      let message = '';
-      
-      if (order.paymentOption === 'cod') {
-        // For COD orders
-        const remainingAmount = order.total - initialPayment;
-        
-        message = `*Order Payment Request*
-
-` +
-          `Order ID: #${order._id.substring(0, 8)}
-` +
-          `Customer: ${order.customerName}
-
-` +
-          `*Order Details:*
-` +
-          order.items.map(item => 
-            `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
-          ).join('\n') +
-          `
-
-*Payment Details:*
-` +
-          `Total Amount: ₹${order.total.toLocaleString('en-IN')}
-` +
-          `Initial Payment: ₹${initialPayment.toLocaleString('en-IN')}
-` +
-          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}
-
-` +
-          `*UPI Payment Details:*
-` +
-          `UPI ID: ${upiId}
-` +
-          `Amount: ₹${initialPayment}
-` +
-          `Note: Order ${order._id.substring(0, 8)} - Initial Payment
-
-` +
-          `Please use your UPI app to scan the QR code for payment of ₹${initialPayment}.
-` +
-          `Scan QR Code: https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${initialPayment}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Initial Payment
-` +
-          `After payment, please notify us with your transaction ID.
-
-` +
-          `Thank you for your order!`;
-      } else {
-        // For Full Payment orders
-        message = `*Full Payment Request*
-
-` +
-          `Order ID: #${order._id.substring(0, 8)}
-` +
-          `Customer: ${order.customerName}
-
-` +
-          `*Order Details:*
-` +
-          order.items.map(item => 
-            `${item.name}${item.color ? ` (${item.color.name})` : ''} - Qty: ${item.quantity} - ₹${(item.price * item.quantity).toLocaleString('en-IN')}`
-          ).join('\n') +
-          `
-
-*Payment Details:*
-` +
-          `Total Amount: ₹${order.total.toLocaleString('en-IN')}
-
-` +
-          `*UPI Payment Details:*
-` +
-          `UPI ID: ${upiId}
-` +
-          `Amount: ₹${order.total}
-` +
-          `Note: Order ${order._id.substring(0, 8)} - Full Payment
-
-` +
-          `Please use your UPI app to scan the QR code for payment of ₹${order.total}.
-` +
-          `Scan QR Code: https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7357762652@ybl&pn=Store Name&am=${order.total}&cu=INR&tn=Order ${order._id.substring(0, 8)} - Full Payment
-` +
-          `After payment, please notify us with your transaction ID.
-
-` +
-          `Thank you for your order!`;
-      }
-      
-      // Send to customer's WhatsApp
-      const cleanPhoneNumber = order.customerPhone.replace(/\D/g, '');
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=91${cleanPhoneNumber}&text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    } catch (error) {
-      console.error("Failed to send payment request:", error);
-      alert("Failed to send payment request. Please try again.");
-    }
-  };
-
-  // Function to send payment confirmation message to customer
-  const sendPaymentConfirmation = (order: Order) => {
-    try {
-      const remainingAmount = order.total - (order.paymentOption === 'cod' ? initialPayment : 0);
       const trackingUrl = `${window.location.origin}/orders/${order._id}`;
       
-      const message = `*${order.paymentOption === 'full' ? 'Payment Confirmed & ' : ''}Order Placed Successfully!*
-
+      const message = `*Order Confirmation*
 ` +
         `Order ID: #${order._id.substring(0, 8)}
 ` +
@@ -305,21 +194,17 @@ const OrdersPage = () => {
 ` +
         `Total Amount: ₹${order.total.toLocaleString('en-IN')}
 ` +
-        (order.paymentOption === 'cod' ? 
-          `Initial Payment Received: ₹${initialPayment.toLocaleString('en-IN')}
+        `Payment Method: Cash on Delivery
 ` +
-          `Remaining Amount (Pay on Delivery): ₹${remainingAmount.toLocaleString('en-IN')}
+        `Please pay the full amount on delivery.
 
-` :
-          `Full Payment Received: ₹${order.total.toLocaleString('en-IN')}
-
-`) +
+` +
         `*Order Tracking:*
 ` +
         `You can track your order status at: ${trackingUrl}
 
 ` +
-        `Our team will update you on the order progress.
+        `Our team will contact you shortly to confirm delivery details.
 
 ` +
         `Thank you for shopping with us!`;
@@ -329,8 +214,8 @@ const OrdersPage = () => {
       const whatsappUrl = `https://api.whatsapp.com/send?phone=91${cleanPhoneNumber}&text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     } catch (error) {
-      console.error("Failed to send payment confirmation:", error);
-      alert("Failed to send payment confirmation. Please try again.");
+      console.error("Failed to send order confirmation:", error);
+      alert("Failed to send order confirmation. Please try again.");
     }
   };
 
@@ -338,7 +223,7 @@ const OrdersPage = () => {
   const sendStatusUpdate = (order: Order) => {
     try {
       const statusText = {
-        'pending': 'Order Placed',
+        'pending': 'Order Confirmed',
         'processing': 'Order Processing',
         'shipped': 'Order Shipped',
         'completed': 'Order Delivered',
@@ -346,7 +231,7 @@ const OrdersPage = () => {
       }[order.status];
       
       const statusDescription = {
-        'pending': 'We have received your order and will process it shortly.',
+        'pending': 'We have confirmed your order and will process it shortly.',
         'processing': 'Your order is being processed and prepared for shipping.',
         'shipped': 'Your order has been shipped and is on its way to you.',
         'completed': 'Your order has been successfully delivered. Thank you for shopping with us!',
@@ -356,7 +241,6 @@ const OrdersPage = () => {
       const trackingUrl = `${window.location.origin}/orders/${order._id}`;
       
       const message = `*Order Status Update*
-
 ` +
         `Order ID: #${order._id.substring(0, 8)}
 ` +
@@ -504,15 +388,13 @@ const OrdersPage = () => {
                       <Badge 
                         variant="outline" 
                         className={
-                          order.paymentStatus === 'verified' ? "bg-green-50 text-green-600 border-green-300" :
+                          order.paymentStatus === 'confirmed' ? "bg-green-50 text-green-600 border-green-300" :
                           order.paymentStatus === 'pending' ? "bg-yellow-50 text-yellow-600 border-yellow-300" :
                           "bg-red-50 text-red-600 border-red-300"
                         }
                       >
                         <CreditCard className="w-3 h-3 mr-1" />
-                        {order.paymentOption === 'full' ? 
-                          (order.paymentStatus === 'verified' ? 'Full Paid' : 'Pending') :
-                          (order.paymentStatus === 'verified' ? 'Verified' : 'Pending')}
+                        {order.paymentStatus === 'confirmed' ? 'Confirmed' : 'Pending'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -610,7 +492,7 @@ const OrdersPage = () => {
                                   <div>
                                     <div className="text-sm text-muted-foreground">Payment Method</div>
                                     <Badge variant="outline">
-                                      {selectedOrder.paymentOption === 'full' ? 'Full Payment Online' : '₹200 Initial Payment (COD)'}
+                                      Cash on Delivery
                                     </Badge>
                                   </div>
                                   <div>
@@ -618,15 +500,13 @@ const OrdersPage = () => {
                                     <Badge 
                                       variant="outline" 
                                       className={
-                                        selectedOrder.paymentStatus === 'verified' ? "bg-green-50 text-green-600 border-green-300" :
+                                        selectedOrder.paymentStatus === 'confirmed' ? "bg-green-50 text-green-600 border-green-300" :
                                         selectedOrder.paymentStatus === 'pending' ? "bg-yellow-50 text-yellow-600 border-yellow-300" :
                                         "bg-red-50 text-red-600 border-red-300"
                                       }
                                     >
                                       <CreditCard className="w-3 h-3 mr-1" />
-                                      {selectedOrder.paymentOption === 'full' ? 
-                                        (selectedOrder.paymentStatus === 'verified' ? 'Full Paid' : 'Pending') :
-                                        (selectedOrder.paymentStatus === 'verified' ? 'Verified' : 'Pending')}
+                                      {selectedOrder.paymentStatus === 'confirmed' ? 'Confirmed' : 'Pending'}
                                     </Badge>
                                   </div>
                                   <div>
@@ -656,27 +536,17 @@ const OrdersPage = () => {
                                     <p className="mb-3">Send messages to the customer about their order.</p>
                                     
                                     <div className="flex flex-wrap gap-2">
-                                      {selectedOrder.paymentStatus !== 'verified' && (
+                                      {selectedOrder.paymentStatus !== 'confirmed' && (
                                         <Button 
-                                          onClick={() => sendPaymentRequest(selectedOrder)}
+                                          onClick={() => sendOrderConfirmation(selectedOrder)}
                                           variant="outline"
                                           className="border-blue-300 text-blue-700 hover:bg-blue-100"
                                         >
-                                          Send Payment Request
+                                          Send Order Confirmation
                                         </Button>
                                       )}
                                       
-                                      {/* Show Send Payment Confirmation only for verified payments */}
-                                      {selectedOrder.paymentStatus === 'verified' && (
-                                        <Button 
-                                          onClick={() => sendPaymentConfirmation(selectedOrder)}
-                                          variant="outline"
-                                          className="border-green-300 text-green-700 hover:bg-green-100"
-                                        >
-                                          Send Payment Confirmation
-                                        </Button>
-                                      )}
-                                      
+                                      {/* Show Send Status Update for all orders */}
                                       <Button 
                                         onClick={() => sendStatusUpdate(selectedOrder)}
                                         variant="outline"
@@ -689,46 +559,34 @@ const OrdersPage = () => {
                                 </Alert>
                               </div>
                               
-                              {/* Payment Verification Section (for both COD and Full Payment orders) */}
-                              {selectedOrder.paymentStatus !== 'verified' && (
+                              {/* Order Confirmation Section (COD-focused) */}
+                              {selectedOrder.paymentStatus !== 'confirmed' && (
                                 <div className="md:col-span-2">
                                   <Alert className="bg-yellow-50 border-yellow-200">
                                     <CreditCard className="h-4 w-4 text-yellow-600" />
                                     <AlertDescription className="text-yellow-800">
-                                      <h3 className="font-semibold mb-2">Verify Payment</h3>
+                                      <h3 className="font-semibold mb-2">Confirm Order</h3>
                                       <p className="mb-3">
-                                        {selectedOrder.paymentOption === 'cod' 
-                                          ? 'Please verify the initial payment of ₹200 before processing the order.'
-                                          : `Please verify the full payment of ₹${selectedOrder.total?.toLocaleString('en-IN')} before processing the order.`}
+                                        Please confirm this COD order before processing.
                                       </p>
                                       
                                       <div className="space-y-3">
                                         <div>
-                                          <Label htmlFor="transactionId">Transaction ID</Label>
-                                          <Input
-                                            id="transactionId"
-                                            value={transactionId}
-                                            onChange={(e) => setTransactionId(e.target.value)}
-                                            placeholder="Enter transaction ID"
-                                          />
-                                        </div>
-                                        
-                                        <div>
-                                          <Label htmlFor="verificationNotes">Verification Notes</Label>
+                                          <Label htmlFor="verificationNotes">Confirmation Notes</Label>
                                           <Textarea
                                             id="verificationNotes"
                                             value={verificationNotes}
                                             onChange={(e) => setVerificationNotes(e.target.value)}
-                                            placeholder="Add any notes about the payment verification"
+                                            placeholder="Add any notes about the order confirmation"
                                             className="min-h-[80px]"
                                           />
                                         </div>
                                         
                                         <Button 
-                                          onClick={() => handleVerifyPayment(selectedOrder._id)}
+                                          onClick={() => handleConfirmOrder(selectedOrder._id)}
                                           className="bg-green-600 hover:bg-green-700"
                                         >
-                                          Mark Payment as Verified
+                                          Confirm Order
                                         </Button>
                                       </div>
                                     </AlertDescription>
@@ -745,7 +603,7 @@ const OrdersPage = () => {
                                 variant="outline" 
                                 className="gap-2"
                                 onClick={() => handleUpdateStatus(order._id, 'processing')}
-                                disabled={order.status === 'processing' || order.status === 'shipped' || order.status === 'completed' || order.status === 'cancelled' || (order.paymentOption === 'cod' && selectedOrder?.paymentStatus !== 'verified')}
+                                disabled={order.status === 'processing' || order.status === 'shipped' || order.status === 'completed' || order.status === 'cancelled' || selectedOrder?.paymentStatus !== 'confirmed'}
                               >
                                 <Package className="w-4 h-4" />
                                 Mark as Processing
@@ -754,7 +612,7 @@ const OrdersPage = () => {
                                 variant="outline" 
                                 className="gap-2"
                                 onClick={() => handleUpdateStatus(order._id, 'shipped')}
-                                disabled={order.status === 'shipped' || order.status === 'completed' || order.status === 'cancelled' || (order.paymentOption === 'cod' && selectedOrder?.paymentStatus !== 'verified')}
+                                disabled={order.status === 'shipped' || order.status === 'completed' || order.status === 'cancelled' || selectedOrder?.paymentStatus !== 'confirmed'}
                               >
                                 <Truck className="w-4 h-4" />
                                 Mark as Shipped
@@ -763,7 +621,7 @@ const OrdersPage = () => {
                                 variant="outline" 
                                 className="gap-2"
                                 onClick={() => handleUpdateStatus(order._id, 'completed')}
-                                disabled={order.status === 'completed' || order.status === 'cancelled' || (order.paymentOption === 'cod' && selectedOrder?.paymentStatus !== 'verified')}
+                                disabled={order.status === 'completed' || order.status === 'cancelled' || selectedOrder?.paymentStatus !== 'confirmed'}
                               >
                                 <CheckCircle className="w-4 h-4" />
                                 Mark as Delivered
